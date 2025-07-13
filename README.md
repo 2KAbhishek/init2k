@@ -1,36 +1,36 @@
 <div align = "center">
 
-<h1><a href="https://github.com/2kabhishek/shelly">shelly</a></h1>
+<h1><a href="https://github.com/2kabhishek/init2k">init2k</a></h1>
 
-<a href="https://github.com/2KAbhishek/shelly/blob/main/LICENSE">
-<img alt="License" src="https://img.shields.io/github/license/2kabhishek/shelly?style=flat&color=eee&label="> </a>
+<a href="https://github.com/2KAbhishek/init2k/blob/main/LICENSE">
+<img alt="License" src="https://img.shields.io/github/license/2kabhishek/init2k?style=flat&color=eee&label="> </a>
 
-<a href="https://github.com/2KAbhishek/shelly/graphs/contributors">
-<img alt="People" src="https://img.shields.io/github/contributors/2kabhishek/shelly?style=flat&color=ffaaf2&label=People"> </a>
+<a href="https://github.com/2KAbhishek/init2k/graphs/contributors">
+<img alt="People" src="https://img.shields.io/github/contributors/2kabhishek/init2k?style=flat&color=ffaaf2&label=People"> </a>
 
-<a href="https://github.com/2KAbhishek/shelly/stargazers">
-<img alt="Stars" src="https://img.shields.io/github/stars/2kabhishek/shelly?style=flat&color=98c379&label=Stars"></a>
+<a href="https://github.com/2KAbhishek/init2k/stargazers">
+<img alt="Stars" src="https://img.shields.io/github/stars/2kabhishek/init2k?style=flat&color=98c379&label=Stars"></a>
 
-<a href="https://github.com/2KAbhishek/shelly/network/members">
-<img alt="Forks" src="https://img.shields.io/github/forks/2kabhishek/shelly?style=flat&color=66a8e0&label=Forks"> </a>
+<a href="https://github.com/2KAbhishek/init2k/network/members">
+<img alt="Forks" src="https://img.shields.io/github/forks/2kabhishek/init2k?style=flat&color=66a8e0&label=Forks"> </a>
 
-<a href="https://github.com/2KAbhishek/shelly/watchers">
-<img alt="Watches" src="https://img.shields.io/github/watchers/2kabhishek/shelly?style=flat&color=f5d08b&label=Watches"> </a>
+<a href="https://github.com/2KAbhishek/init2k/watchers">
+<img alt="Watches" src="https://img.shields.io/github/watchers/2kabhishek/init2k?style=flat&color=f5d08b&label=Watches"> </a>
 
-<a href="https://github.com/2KAbhishek/shelly/pulse">
-<img alt="Last Updated" src="https://img.shields.io/github/last-commit/2kabhishek/shelly?style=flat&color=e06c75&label="> </a>
+<a href="https://github.com/2KAbhishek/init2k/pulse">
+<img alt="Last Updated" src="https://img.shields.io/github/last-commit/2kabhishek/init2k?style=flat&color=e06c75&label="> </a>
 
 <h3>Publish CLI Tools 🐚✨</h3>
 
 <figure>
-  <img src="images/screenshot.png" alt="shelly in action">
+  <img src="images/screenshot.png" alt="init2k in action">
   <br/>
-  <figcaption>shelly in action</figcaption>
+  <figcaption>init2k in action</figcaption>
 </figure>
 
 </div>
 
-shelly is a `<utility/tool>` that allows `<target_audience>` to `<action>`.
+init2k is a `<utility/tool>` that allows `<target_audience>` to `<action>`.
 
 ## ✨ Features
 
@@ -48,10 +48,10 @@ shelly is a `<utility/tool>` that allows `<target_audience>` to `<action>`.
 ### 💻 Installation
 
 ```bash
-git clone https://github.com/2kabhishek/shelly
-cd shelly
+git clone https://github.com/2kabhishek/init2k
+cd init2k
 # Link mkrepo to a directory that's in PATH (~/.local/bin here)
-ln -sfnv "$PWD/shelly.sh" ~/.local/bin/shelly
+ln -sfnv "$PWD/init2k.sh" ~/.local/bin/init2k
 ```
 
 ## 🚀 Usage
@@ -59,14 +59,14 @@ ln -sfnv "$PWD/shelly.sh" ~/.local/bin/shelly
 ```bash
 USAGE:
 
-shelly <REQUIRED> [OPTIONAL]
+init2k <REQUIRED> [OPTIONAL]
 
 Arguments:
     REQUIRED: Required Argument
     OPTIONAL: Optional Argument
 
 Example:
-    shelly
+    init2k
 ```
 
 ## 🏗️ What's Next
@@ -83,7 +83,7 @@ Planning to add `<feature/module>`.
 
 ### 🌈 Inspiration
 
-shelly was inspired by `<reason/idea>`.
+init2k was inspired by `<reason/idea>`.
 
 ### 💡 Challenges/Learnings
 
@@ -108,7 +108,7 @@ shelly was inspired by `<reason/idea>`.
 
 <strong>⭐ hit the star button if you found this useful ⭐</strong><br>
 
-<a href="https://github.com/2KAbhishek/shelly">Source</a>
+<a href="https://github.com/2KAbhishek/init2k">Source</a>
 | <a href="https://2kabhishek.github.io/blog" target="_blank">Blog </a>
 | <a href="https://twitter.com/2kabhishek" target="_blank">Twitter </a>
 | <a href="https://linkedin.com/in/2kabhishek" target="_blank">LinkedIn </a>
