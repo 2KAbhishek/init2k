@@ -590,7 +590,7 @@ main() {
             shift
             ;;
         -w | --workspace)
-            WORKSPACE_DIR="$2"
+            WORKSPACE_DIR="${2/#\~/$HOME}"
             shift 2
             ;;
         -l | --list)
