@@ -221,21 +221,24 @@ run_checkbox_ui() {
         local key=""
         IFS= read -rsn1 key 2>/dev/null || true
 
-        if [[ $key == $'\x1b' ]]; then
+        # If empty (timeout or interrupt), do nothing and loop
+        [[ -z "$key" ]] && continue
+
+        if [[ "$key" == $'\x1b' ]]; then
             local rest=""
-            read -rsn2 -t 0.1 rest 2>/dev/null || true
+            read -rsn2 -t 0.05 rest 2>/dev/null || true
             key+="$rest"
         fi
 
         case "$key" in
-        $'\x1b[A' | 'k' | 'K') # Up
+        $'\x1b[A' | $'\x1bOA' | 'k' | 'K') # Up
             if ((cursor > 0)); then
                 ((cursor--))
             else
                 cursor=$((TOTAL_MODULES - 1))
             fi
             ;;
-        $'\x1b[B' | 'j' | 'J') # Down
+        $'\x1b[B' | $'\x1bOB' | 'j' | 'J') # Down
             if ((cursor < TOTAL_MODULES - 1)); then
                 ((cursor++))
             else
@@ -261,14 +264,17 @@ run_checkbox_ui() {
                 checked[i]=$any_unchecked
             done
             ;;
-        '' | $'\n' | $'\r') # Enter to submit
+        $'\n' | $'\r') # Enter to submit
             break
             ;;
-        'q' | 'Q') # Quit
+        $'\x1b' | 'q' | 'Q') # Escape or 'q' to Quit
             tput cnorm 2>/dev/null || true
             stty echo 2>/dev/null || true
             echo -e "\n${C_RED}Setup cancelled.${C_RESET}"
             exit 0
+            ;;
+        *)
+            continue
             ;;
         esac
 
