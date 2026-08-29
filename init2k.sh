@@ -23,17 +23,17 @@ NON_INTERACTIVE=false
 SELECTED_PROFILE=""
 SELECTED_MODULES=()
 
-# Colors and formatting
-C_RESET="\033[0m"
-C_BOLD="\033[1m"
-C_DIM="\033[2m"
-C_GREEN="\033[32;1m"
-C_BLUE="\033[34;1m"
-C_CYAN="\033[36;1m"
-C_YELLOW="\033[33;1m"
-C_RED="\033[31;1m"
-C_MAGENTA="\033[35;1m"
-C_REV="\033[7m"
+# Colors and formatting (ANSI C-quoted for direct byte output)
+C_RESET=$'\033[0m'
+C_BOLD=$'\033[1m'
+C_DIM=$'\033[2m'
+C_GREEN=$'\033[32;1m'
+C_BLUE=$'\033[34;1m'
+C_CYAN=$'\033[36;1m'
+C_YELLOW=$'\033[33;1m'
+C_RED=$'\033[31;1m'
+C_MAGENTA=$'\033[35;1m'
+C_REV=$'\033[7m'
 
 # ------------------------------------------------------------------------------
 # Module Registry
@@ -207,7 +207,7 @@ run_checkbox_ui() {
                 line_style="${C_CYAN}${C_BOLD}"
             fi
 
-            printf "%b[%b] %b%-10s%b %s\n" \
+            printf "%s[%s] %s%-10s%s %s\n" \
                 "$pointer" "$mark" "$line_style" "${MOD_IDS[i]}" "${C_RESET}${C_DIM}" "- ${MOD_DESCS[i]}${C_RESET}"
         done
         echo ""
