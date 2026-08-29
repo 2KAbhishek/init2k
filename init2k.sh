@@ -6,6 +6,11 @@
 
 set -eo pipefail
 
+# Reopen stdin from /dev/tty if running in a pipe (e.g. curl ... | bash)
+if [[ ! -t 0 ]] && [[ -r /dev/tty ]]; then
+    exec < /dev/tty
+fi
+
 current_dir="${BASH_SOURCE[0]%/*}"
 [[ "$current_dir" == "${BASH_SOURCE[0]}" || "$current_dir" == "." ]] && current_dir="$PWD"
 readonly current_dir
@@ -476,8 +481,15 @@ execute_pipeline() {
         fi
     done
 
-    local self_path="$current_dir/init2k.sh"
+    # Ensure init2k itself is cloned in workspace and linked to PATH
+    sync_repo "init2k"
+    local self_path="$WORKSPACE_DIR/init2k/init2k.sh"
+    if [[ ! -f "$self_path" && -f "$current_dir/init2k.sh" ]]; then
+        self_path="$current_dir/init2k.sh"
+    fi
+
     if [[ -f "$self_path" ]]; then
+        chmod +x "$self_path" 2>/dev/null || true
         if [[ "$DRY_RUN" == true ]]; then
             echo "[DRY-RUN] ln -sfnv $self_path $HOME/.local/bin/init2k"
         else

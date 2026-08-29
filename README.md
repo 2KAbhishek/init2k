@@ -47,18 +47,28 @@
 
 ## ⚡ Quickstart
 
-### 1. Fresh Arch Install One-Liner
+### 1. Direct One-Liner (Recommended)
+
+Run directly on a fresh install without manually cloning:
 
 ```bash
-# Clone and run
+bash <(curl -fsSL https://raw.githubusercontent.com/2kabhishek/init2k/main/init2k.sh)
+```
+
+*(Or via pipe: `curl -fsSL https://raw.githubusercontent.com/2kabhishek/init2k/main/init2k.sh | bash`)*
+
+> [!NOTE]
+> On a bare minimal Arch install, make sure `curl` and `git` are installed: `sudo pacman -S --needed curl git`
+
+### 2. Manual Clone & Run
+
+```bash
 git clone https://github.com/2kabhishek/init2k ~/Projects/2KAbhishek/init2k
 cd ~/Projects/2KAbhishek/init2k
 ./init2k.sh
 ```
 
-_(If `git` is not installed yet on a bare minimal Arch install, run `sudo pacman -S --needed git` first)._
-
-### 2. Post-Install CLI
+### 3. Post-Install CLI
 
 `init2k` automatically symlinks itself to `~/.local/bin/init2k`. Once your shell is reloaded, you can run `init2k` anytime from anywhere:
 
