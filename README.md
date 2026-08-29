@@ -20,7 +20,7 @@
 <a href="https://github.com/2KAbhishek/init2k/pulse">
 <img alt="Last Updated" src="https://img.shields.io/github/last-commit/2kabhishek/init2k?style=flat&color=e06c75&label="> </a>
 
-<h3>Bootstrapper for my tools 🐚⚡</h3>
+<h3>Bootstrapper for 2K Ecosystem 🐚⚡</h3>
 
 <figure>
   <img src="images/screenshot.png" alt="init2k in action">

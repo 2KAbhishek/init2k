@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# init2k: Arch Linux & Multi-Distro Bootstrapper for 2KAbhishek Ecosystem
+# init2k: Bootstrapper for 2K Ecosystem
 # https://github.com/2kabhishek/init2k
 # ==============================================================================
 
@@ -135,7 +135,7 @@ banner() {
  |_|_| |_|_|\__|  2kabhishek
 
 EOF
-    echo -e "${C_DIM}Personalized Arch & Multi-Distro System Bootstrapper v${VERSION}${C_RESET}\n"
+    echo -e "${C_DIM}Bootstrapper for 2K Ecosystem v${VERSION}${C_RESET}\n"
 }
 
 ensure_bootstrap_prereqs() {
@@ -498,7 +498,7 @@ execute_pipeline() {
 
 usage() {
     cat <<EOF
-init2k - Arch Linux & Multi-Distro Bootstrapper v${VERSION}
+init2k - Bootstrapper for 2K Ecosystem v${VERSION}
 
 Usage:
   init2k [OPTIONS]
