@@ -186,7 +186,7 @@ run_checkbox_ui() {
     tput civis 2>/dev/null || true
 
     clear_checkbox_view() {
-        local lines_to_clear=$((TOTAL_MODULES + 4))
+        local lines_to_clear=$((TOTAL_MODULES + 3))
         for ((i = 0; i < lines_to_clear; i++)); do
             echo -en "\033[1A\033[2K"
         done
@@ -232,15 +232,15 @@ run_checkbox_ui() {
 
         case "$key" in
         $'\x1b[A' | $'\x1bOA' | 'k' | 'K') # Up
-            if ((cursor > 0)); then
-                ((cursor--))
+            if [[ $cursor -gt 0 ]]; then
+                cursor=$((cursor - 1))
             else
                 cursor=$((TOTAL_MODULES - 1))
             fi
             ;;
         $'\x1b[B' | $'\x1bOB' | 'j' | 'J') # Down
-            if ((cursor < TOTAL_MODULES - 1)); then
-                ((cursor++))
+            if [[ $cursor -lt $((TOTAL_MODULES - 1)) ]]; then
+                cursor=$((cursor + 1))
             else
                 cursor=0
             fi
