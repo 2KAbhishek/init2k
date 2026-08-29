@@ -448,11 +448,14 @@ execute_pipeline() {
         fi
     done
 
-    # Symlink init2k to ~/.local/bin/init2k using 0-fork current_dir
     local self_path="$current_dir/init2k.sh"
     if [ -f "$self_path" ]; then
-        mkdir -p "$HOME/.local/bin"
-        ln -sfnv "$self_path" "$HOME/.local/bin/init2k"
+        if [ "$DRY_RUN" = true ]; then
+            echo "[DRY-RUN] ln -sfnv $self_path $HOME/.local/bin/init2k"
+        else
+            mkdir -p "$HOME/.local/bin"
+            ln -sfnv "$self_path" "$HOME/.local/bin/init2k"
+        fi
     fi
 
     echo -e "\n${C_GREEN}${C_BOLD}======================================================${C_RESET}"
