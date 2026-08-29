@@ -112,7 +112,7 @@ init2k --all --dry-run
 | **`minimal`**          | `dots2k`, `nvim2k`, `tdo`, `mkrepo`                                       | Base shell (zsh/bash/fish), tmux, Neovim, notes CLI, repo creator          |
 | **`sway`** _(Default)_ | `dots2k`, `nvim2k`, `sway2k`, `rofi2k`, `qute2k`, `tdo`, `mkrepo`, `BWnB` | Wayland desktop with Sway, Waybar, Foot, Swappy, Rofi, Qutebrowser, themes |
 | **`i3`**               | `dots2k`, `nvim2k`, `i32k`, `rofi2k`, `qute2k`, `tdo`, `mkrepo`, `BWnB`   | X11 desktop with i3-wm, Picom, Rofi, Qutebrowser, themes                   |
-| **`full`**             | All registered repositories                                               | Everything above + `refind2k`, `worklog`                                   |
+| **`full`**             | All registered repositories                                               | Everything above + `refind2k`                                              |
 
 ---
 
@@ -128,7 +128,6 @@ init2k --all --dry-run
 | `qute2k`   | [qute2k](https://github.com/2kabhishek/qute2k)     | Keyboard-navigable browser configs                  | `./setup.sh`    |
 | `tdo`      | [tdo](https://github.com/2kabhishek/tdo)           | Note-taking and todo CLI management                 | `./setup.sh`    |
 | `mkrepo`   | [mkrepo](https://github.com/2kabhishek/mkrepo)     | GitHub repository generator CLI                     | `./setup.sh`    |
-| `worklog`  | [worklog](https://github.com/2kabhishek/worklog)   | Daily worklog & todo tracker                        | `todos.sh`      |
 | `bwnb`     | [BWnB](https://github.com/2kabhishek/BWnB)         | Black, White & Blue themes (Kvantum, GTK)           | `./setup.sh`    |
 | `refind2k` | [refind2k](https://github.com/2kabhishek/refind2k) | rEFInd UEFI bootloader theme                        | `./setup.sh`    |
 

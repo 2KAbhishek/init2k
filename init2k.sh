@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# ==============================================================================
+# init2k: Arch Linux & Multi-Distro Bootstrapper for 2KAbhishek Ecosystem
+# https://github.com/2kabhishek/init2k
+# ==============================================================================
 
 set -eo pipefail
 
@@ -49,7 +53,6 @@ MODULE_DEFS=(
     "qute2k|qute2k|setup.sh|sway i3 full|Keyboard-navigable browser configuration"
     "tdo|tdo|setup.sh|minimal sway i3 full|Note-taking and todo CLI management"
     "mkrepo|mkrepo|setup.sh|minimal sway i3 full|CLI GitHub repository generator"
-    "worklog|worklog|todos.sh|full|Daily worklog & todo tracker"
     "bwnb|BWnB|setup.sh|sway i3 full|Black, White & Blue themes (Kvantum, GTK)"
     "refind2k|refind2k|setup.sh|full|rEFInd UEFI bootloader theme"
 )
@@ -80,6 +83,14 @@ log_success() { echo -e "${C_GREEN}[✓]${C_RESET} $1"; }
 log_warn() { echo -e "${C_YELLOW}[!]${C_RESET} $1"; }
 log_err() { echo -e "${C_RED}[✗]${C_RESET} $1" >&2; }
 log_step() { echo -e "\n${C_CYAN}:: ${C_BOLD}$1${C_RESET}"; }
+
+cmd_sudo() {
+    if [[ "$EUID" -ne 0 ]] && command -v sudo &>/dev/null; then
+        sudo "$@"
+    else
+        "$@"
+    fi
+}
 
 get_system_info() {
     case "$HOST_OS" in
@@ -136,17 +147,17 @@ ensure_bootstrap_prereqs() {
         case "$sys_kind" in
         arch | cachyos | archarm | manjaro | steamos | holo)
             if command -v pacman &>/dev/null; then
-                sudo pacman -S --needed --noconfirm git curl base-devel
+                cmd_sudo pacman -S --needed --noconfirm git curl base-devel
             fi
             ;;
         debian | ubuntu | pop | kali)
             if command -v apt-get &>/dev/null; then
-                sudo apt-get update && sudo apt-get install -y git curl build-essential
+                cmd_sudo apt-get update && cmd_sudo apt-get install -y git curl build-essential
             fi
             ;;
         fedora | fedora-asahi-remix)
             if command -v dnf &>/dev/null; then
-                sudo dnf install -y git curl @development-tools
+                cmd_sudo dnf install -y git curl @development-tools
             fi
             ;;
         mac)
@@ -180,8 +191,14 @@ run_checkbox_ui() {
         fi
     done
 
-    # Terminal configuration & cleanup trap
-    trap 'tput cnorm 2>/dev/null || true; stty echo 2>/dev/null || true; echo ""; exit 1' INT TERM
+    # Terminal configuration & cleanup traps
+    cleanup_tui() {
+        tput cnorm 2>/dev/null || true
+        stty echo 2>/dev/null || true
+    }
+    trap 'cleanup_tui; echo -e "\n${C_RED}Setup cancelled.${C_RESET}"; exit 1' INT TERM
+    trap 'cleanup_tui' EXIT
+
     stty -echo -icanon 2>/dev/null || true
     tput civis 2>/dev/null || true
 
@@ -265,8 +282,7 @@ run_checkbox_ui() {
             break
             ;;
         $'\x1b' | 'q' | 'Q') # Escape or 'q' to Quit
-            tput cnorm 2>/dev/null || true
-            stty echo 2>/dev/null || true
+            cleanup_tui
             echo -e "\n${C_RED}Setup cancelled.${C_RESET}"
             exit 0
             ;;
@@ -279,8 +295,8 @@ run_checkbox_ui() {
         render_checkbox_view
     done
 
-    tput cnorm 2>/dev/null || true
-    stty echo 2>/dev/null || true
+    cleanup_tui
+    trap - EXIT INT TERM
     echo ""
 
     SELECTED_MODULES=()
@@ -306,7 +322,7 @@ show_profile_menu() {
 
     local choice=""
     while [[ -z "$choice" ]]; do
-        echo -en "${C_GREEN}Select an option [1-5]: ${C_RESET}"
+        echo -en "${C_GREEN}Select an option [1-5, q]: ${C_RESET}"
         read -r choice
     done
 
@@ -335,6 +351,11 @@ select_profile() {
             SELECTED_MODULES+=("${MOD_IDS[i]}")
         fi
     done
+
+    if [[ ${#SELECTED_MODULES[@]} -eq 0 ]]; then
+        log_err "Unknown profile: '$profile'. Available: minimal, sway, i3, full"
+        exit 1
+    fi
 }
 
 # ------------------------------------------------------------------------------
@@ -346,16 +367,16 @@ sync_repo() {
     local dest="$WORKSPACE_DIR/$repo"
     local url="$GH_BASE_URL/$repo.git"
 
-    if [ ! -d "$dest" ]; then
+    if [[ ! -d "$dest" ]]; then
         log_info "Cloning $repo into $dest..."
-        if [ "$DRY_RUN" = true ]; then
+        if [[ "$DRY_RUN" == true ]]; then
             echo "[DRY-RUN] git clone $url $dest"
         else
             git clone "$url" "$dest"
         fi
     else
         log_info "Updating $repo in $dest..."
-        if [ "$DRY_RUN" = true ]; then
+        if [[ "$DRY_RUN" == true ]]; then
             echo "[DRY-RUN] git -C $dest pull --ff-only"
         else
             if git -C "$dest" rev-parse --is-inside-work-tree &>/dev/null; then
@@ -381,7 +402,7 @@ run_module_setup() {
     done
 
     if [[ $idx -eq -1 ]]; then
-        log_err "Unknown module: $mid"
+        log_err "Unknown module: '$mid'"
         return 1
     fi
 
@@ -393,12 +414,16 @@ run_module_setup() {
 
     sync_repo "$repo"
 
-    if [ "$DRY_RUN" = true ]; then
-        echo "[DRY-RUN] cd $dest && ./$script"
+    if [[ "$DRY_RUN" == true ]]; then
+        if [[ -n "$script" && (-f "$dest/$script" || ! -d "$dest") ]]; then
+            echo "[DRY-RUN] cd $dest && ./$script"
+        else
+            echo "[DRY-RUN] $mid repository synchronized."
+        fi
         return 0
     fi
 
-    if [ -f "$dest/$script" ]; then
+    if [[ -n "$script" && -f "$dest/$script" ]]; then
         chmod +x "$dest/$script" 2>/dev/null || true
         # Special flag for dots2k non-interactive all install
         if [[ "$mid" == "dots2k" ]]; then
@@ -412,7 +437,7 @@ run_module_setup() {
         fi
         log_success "$mid setup completed!"
     else
-        log_warn "No $script found in $dest; skipping execution."
+        log_success "$mid repository synchronized!"
     fi
 }
 
@@ -428,7 +453,7 @@ execute_pipeline() {
     done
     echo ""
 
-    if [ "$NON_INTERACTIVE" = false ]; then
+    if [[ "$NON_INTERACTIVE" == false ]]; then
         echo -en "${C_GREEN}Proceed with setup? [Y/n]: ${C_RESET}"
         read -r confirm
         if [[ "$confirm" =~ ^[nN] ]]; then
@@ -452,8 +477,8 @@ execute_pipeline() {
     done
 
     local self_path="$current_dir/init2k.sh"
-    if [ -f "$self_path" ]; then
-        if [ "$DRY_RUN" = true ]; then
+    if [[ -f "$self_path" ]]; then
+        if [[ "$DRY_RUN" == true ]]; then
             echo "[DRY-RUN] ln -sfnv $self_path $HOME/.local/bin/init2k"
         else
             mkdir -p "$HOME/.local/bin"
@@ -519,7 +544,25 @@ main() {
             shift 2
             ;;
         -m | --module | --modules)
-            IFS=',' read -r -a SELECTED_MODULES <<<"$2"
+            IFS=',' read -r -a raw_modules <<<"$2"
+            SELECTED_MODULES=()
+            for raw_m in "${raw_modules[@]}"; do
+                # Trim whitespace
+                raw_m="${raw_m// /}"
+                [[ -z "$raw_m" ]] && continue
+                local found=0
+                for ((i = 0; i < TOTAL_MODULES; i++)); do
+                    if [[ "${MOD_IDS[i]}" == "$raw_m" ]]; then
+                        SELECTED_MODULES+=("$raw_m")
+                        found=1
+                        break
+                    fi
+                done
+                if [[ $found -eq 0 ]]; then
+                    log_err "Unknown module '$raw_m'. Run 'init2k --list' to see valid modules."
+                    exit 1
+                fi
+            done
             shift 2
             ;;
         -a | --all)
