@@ -221,9 +221,6 @@ run_checkbox_ui() {
         local key=""
         IFS= read -rsn1 key 2>/dev/null || true
 
-        # If empty (timeout or interrupt), do nothing and loop
-        [[ -z "$key" ]] && continue
-
         if [[ "$key" == $'\x1b' ]]; then
             local rest=""
             read -rsn2 -t 0.05 rest 2>/dev/null || true
@@ -264,7 +261,7 @@ run_checkbox_ui() {
                 checked[i]=$any_unchecked
             done
             ;;
-        $'\n' | $'\r') # Enter to submit
+        "" | $'\n' | $'\r') # Enter to submit
             break
             ;;
         $'\x1b' | 'q' | 'Q') # Escape or 'q' to Quit
