@@ -11,6 +11,8 @@ if [[ ! -t 0 ]] && [[ -r /dev/tty ]]; then
     exec < /dev/tty
 fi
 
+export PATH="$HOME/.local/bin:$PATH"
+
 current_dir="${BASH_SOURCE[0]%/*}"
 [[ "$current_dir" == "${BASH_SOURCE[0]}" || "$current_dir" == "." ]] && current_dir="$PWD"
 readonly current_dir
