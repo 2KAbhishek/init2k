@@ -81,6 +81,27 @@ for ((i = 0; i < TOTAL_MODULES; i++)); do
 done
 
 # ------------------------------------------------------------------------------
+# Profile Registry
+# Format: NAME | DESCRIPTION
+# ------------------------------------------------------------------------------
+PROFILE_DEFS=(
+    "minimal|Core shell, Neovim, dotfiles & CLI tools"
+    "sway|Recommended: Sway, Waybar, apps & themes"
+    "i3|i3 window manager, Picom, apps & themes"
+    "full|Everything part of other profiles"
+)
+
+TOTAL_PROFILES=${#PROFILE_DEFS[@]}
+PROF_NAMES=()
+PROF_DESCS=()
+
+for ((i = 0; i < TOTAL_PROFILES; i++)); do
+    IFS='|' read -r pname pdesc <<<"${PROFILE_DEFS[i]}"
+    PROF_NAMES+=("$pname")
+    PROF_DESCS+=("$pdesc")
+done
+
+# ------------------------------------------------------------------------------
 # Helper Functions
 # ------------------------------------------------------------------------------
 
@@ -319,34 +340,31 @@ run_checkbox_ui() {
 
 show_profile_menu() {
     echo -e "${C_BOLD}Choose a setup profile or custom selection:${C_RESET}\n"
-    echo -e "  ${C_CYAN}(1)${C_RESET} ${C_BOLD}💻 Minimal / CLI${C_RESET}          ${C_DIM}(Core shell, Neovim, dotfiles & CLI tools)${C_RESET}"
-    echo -e "  ${C_CYAN}(2)${C_RESET} ${C_BOLD}🌊 Sway Wayland Desktop${C_RESET}   ${C_DIM}(Recommended: Sway, Waybar, apps & themes)${C_RESET}"
-    echo -e "  ${C_CYAN}(3)${C_RESET} ${C_BOLD}🪟 i3 X11 Desktop${C_RESET}         ${C_DIM}(i3 window manager, Picom, apps & themes)${C_RESET}"
-    echo -e "  ${C_CYAN}(4)${C_RESET} ${C_BOLD}🚀 Full Suite${C_RESET}             ${C_DIM}(Everything part of other profiles)${C_RESET}"
-    echo -e "  ${C_CYAN}(5)${C_RESET} ${C_BOLD}🔘 Custom Selection${C_RESET}       ${C_DIM}(Interactive picker)${C_RESET}"
+    for ((i = 0; i < TOTAL_PROFILES; i++)); do
+        printf "  ${C_CYAN}(%d)${C_RESET} ${C_BOLD}%-10s${C_RESET} ${C_DIM}- %s${C_RESET}\n" \
+            "$((i + 1))" "${PROF_NAMES[i]}" "${PROF_DESCS[i]}"
+    done
+    printf "  ${C_CYAN}(%d)${C_RESET} ${C_BOLD}%-10s${C_RESET} ${C_DIM}- %s${C_RESET}\n" \
+        "$((TOTAL_PROFILES + 1))" "custom" "Interactive picker"
     echo -e "  ${C_RED}(q)${C_RESET} ${C_DIM}Exit${C_RESET}\n"
 
     local choice=""
     while [[ -z "$choice" ]]; do
-        echo -en "${C_GREEN}Select an option [1-5, q]: ${C_RESET}"
+        echo -en "${C_GREEN}Select an option [1-$((TOTAL_PROFILES + 1)), q]: ${C_RESET}"
         read -r choice
     done
 
-    case "$choice" in
-    1) select_profile "minimal" ;;
-    2) select_profile "sway" ;;
-    3) select_profile "i3" ;;
-    4) select_profile "full" ;;
-    5) run_checkbox_ui ;;
-    q | Q)
+    if [[ "$choice" =~ ^[0-9]+$ ]] && [[ "$choice" -ge 1 && "$choice" -le "$TOTAL_PROFILES" ]]; then
+        select_profile "${PROF_NAMES[$((choice - 1))]}"
+    elif [[ "$choice" -eq $((TOTAL_PROFILES + 1)) ]]; then
+        run_checkbox_ui
+    elif [[ "$choice" =~ ^[qQ]$ ]]; then
         echo -e "${C_RED}Exiting.${C_RESET}"
         exit 0
-        ;;
-    *)
+    else
         log_err "Invalid selection!"
         exit 1
-        ;;
-    esac
+    fi
 }
 
 select_profile() {
@@ -359,7 +377,7 @@ select_profile() {
     done
 
     if [[ ${#SELECTED_MODULES[@]} -eq 0 ]]; then
-        log_err "Unknown profile: '$profile'. Available: minimal, sway, i3, full"
+        log_err "Unknown profile: '$profile'. Available: ${PROF_NAMES[*]}"
         exit 1
     fi
 }
@@ -527,10 +545,9 @@ EOF
 
 list_available() {
     echo -e "${C_BOLD}Available Profiles:${C_RESET}"
-    echo -e "  ${C_CYAN}minimal${C_RESET} : Core shell, Neovim & CLI productivity tools"
-    echo -e "  ${C_CYAN}sway${C_RESET}    : Wayland desktop environment with Sway, Waybar & themes"
-    echo -e "  ${C_CYAN}i3${C_RESET}      : X11 desktop environment with i3, Picom & themes"
-    echo -e "  ${C_CYAN}full${C_RESET}    : Complete desktop & CLI environment"
+    for ((i = 0; i < TOTAL_PROFILES; i++)); do
+        printf "  ${C_CYAN}%-10s${C_RESET} : %s\n" "${PROF_NAMES[i]}" "${PROF_DESCS[i]}"
+    done
     echo ""
     echo -e "${C_BOLD}Available Modules (${TOTAL_MODULES}):${C_RESET}"
     for ((i = 0; i < TOTAL_MODULES; i++)); do
