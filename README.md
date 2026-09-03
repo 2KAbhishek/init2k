@@ -146,9 +146,9 @@ init2k --all --dry-run
 Adding a new tool or repository to `init2k` is as simple as adding an entry to `MODULE_DEFS` inside `init2k.sh`:
 
 ```bash
-# Format: "REPO | SCRIPT | DESCRIPTION"
+# Format: "REPO | DESCRIPTION | SCRIPT (optional, defaults to setup.sh)"
 MODULE_DEFS+=(
-    "mytool|setup.sh|My awesome new CLI tool"
+    "mytool|My awesome new CLI tool|setup.sh -a"
 )
 ```
 

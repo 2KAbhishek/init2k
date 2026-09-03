@@ -48,21 +48,21 @@ C_REV=$'\033[7m'
 
 # ------------------------------------------------------------------------------
 # Module Registry
-# Format: REPO | SCRIPT | DESCRIPTION
+# Format: REPO | DESCRIPTION | SCRIPT (optional, defaults to setup.sh)
 # ------------------------------------------------------------------------------
 # To add a new repo/module, simply add an entry to this array!
 MODULE_DEFS=(
-    "dots2k|setup.sh -a|Core shell, terminal, tmux, base packages & dotfiles"
-    "nvim2k|setup.sh|Personalized Neovim IDE configuration & LSPs"
-    "sway2k|setup.sh|Sway Wayland desktop environment, waybar & utils"
-    "i32k|setup.sh|i3 X11 window manager, picom & utils"
-    "rofi2k|setup.sh|Universal application launcher & themes"
-    "qute2k|setup.sh|Keyboard-navigable browser configuration"
-    "tdo|setup.sh|Note-taking and todo CLI management"
-    "mkrepo|setup.sh|CLI GitHub repository generator"
-    "repowatch|setup.sh|Interactive multi-repo monitor"
-    "BWnB|setup.sh|Black, White & Blue themes (Kvantum, GTK)"
-    "refind2k|setup.sh|rEFInd UEFI bootloader theme"
+    "dots2k|Core shell, terminal, tmux, base packages & dotfiles|setup.sh -a"
+    "nvim2k|Personalized Neovim IDE configuration & LSPs"
+    "sway2k|Sway Wayland desktop environment, waybar & utils"
+    "i32k|i3 X11 window manager, picom & utils"
+    "rofi2k|Universal application launcher & themes"
+    "qute2k|Keyboard-navigable browser configuration"
+    "tdo|Note-taking and todo CLI management"
+    "mkrepo|CLI GitHub repository generator"
+    "repowatch|Interactive multi-repo monitor"
+    "BWnB|Black, White & Blue themes (Kvantum, GTK)"
+    "refind2k|rEFInd UEFI bootloader theme"
 )
 
 # Parse Module Registry into indexed arrays
@@ -72,10 +72,11 @@ MOD_SCRIPTS=()
 MOD_DESCS=()
 
 for ((i = 0; i < TOTAL_MODULES; i++)); do
-    IFS='|' read -r mrepo mscript mdesc <<<"${MODULE_DEFS[i]}"
+    IFS='|' read -r mrepo mdesc mscript <<<"${MODULE_DEFS[i]}"
+    mscript="${mscript:-setup.sh}"
     MOD_REPOS+=("$mrepo")
-    MOD_SCRIPTS+=("$mscript")
     MOD_DESCS+=("$mdesc")
+    MOD_SCRIPTS+=("$mscript")
 done
 
 # ------------------------------------------------------------------------------
