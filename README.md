@@ -141,23 +141,31 @@ init2k --all --dry-run
 
 ---
 
-## ➕ Adding a New Module
+## ➕ Adding Modules & Profiles
 
-Adding a new tool or repository to `init2k` is as simple as adding an entry to the `MODULE_DEFS` array inside `init2k.sh`:
+Adding a new tool or repository to `init2k` is as simple as adding an entry to `MODULE_DEFS` inside `init2k.sh`:
 
 ```bash
-# Format: "REPO | SCRIPT | PROFILES | DESCRIPTION"
+# Format: "REPO | SCRIPT | DESCRIPTION"
 MODULE_DEFS+=(
-    "mytool|setup.sh|minimal sway full|My awesome new CLI tool"
+    "mytool|setup.sh|My awesome new CLI tool"
 )
 ```
 
 The script will automatically:
 
 1. Add it to the interactive checkbox UI.
-2. Include it in the designated profiles.
-3. Clone or pull it into `~/Projects/2KAbhishek/<repo_name>`.
-4. Execute its `./setup.sh` idempotently.
+2. Clone or pull it into `~/Projects/2KAbhishek/<repo_name>`.
+3. Execute its `./setup.sh` idempotently.
+
+To add a new preset profile or include a module in an existing one, update `PROFILE_DEFS`:
+
+```bash
+# Format: "NAME | DESCRIPTION | MODULES"
+PROFILE_DEFS+=(
+    "myprofile|Custom developer workflow|dots2k nvim2k mytool"
+)
+```
 
 <hr>
 

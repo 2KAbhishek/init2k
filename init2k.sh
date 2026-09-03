@@ -48,57 +48,57 @@ C_REV=$'\033[7m'
 
 # ------------------------------------------------------------------------------
 # Module Registry
-# Format: REPO | SCRIPT | PROFILES | DESCRIPTION
+# Format: REPO | SCRIPT | DESCRIPTION
 # ------------------------------------------------------------------------------
 # To add a new repo/module, simply add an entry to this array!
 MODULE_DEFS=(
-    "dots2k|setup.sh -a|minimal sway i3 full|Core shell, terminal, tmux, base packages & dotfiles"
-    "nvim2k|setup.sh|minimal sway i3 full|Personalized Neovim IDE configuration & LSPs"
-    "sway2k|setup.sh|sway full|Sway Wayland desktop environment, waybar & utils"
-    "i32k|setup.sh|i3 full|i3 X11 window manager, picom & utils"
-    "rofi2k|setup.sh|sway i3 full|Universal application launcher & themes"
-    "qute2k|setup.sh|sway i3 full|Keyboard-navigable browser configuration"
-    "tdo|setup.sh|minimal sway i3 full|Note-taking and todo CLI management"
-    "mkrepo|setup.sh|minimal sway i3 full|CLI GitHub repository generator"
-    "repowatch|setup.sh|minimal sway i3 full|Interactive multi-repo monitor"
-    "BWnB|setup.sh|sway i3 full|Black, White & Blue themes (Kvantum, GTK)"
-    "refind2k|setup.sh|none|rEFInd UEFI bootloader theme"
+    "dots2k|setup.sh -a|Core shell, terminal, tmux, base packages & dotfiles"
+    "nvim2k|setup.sh|Personalized Neovim IDE configuration & LSPs"
+    "sway2k|setup.sh|Sway Wayland desktop environment, waybar & utils"
+    "i32k|setup.sh|i3 X11 window manager, picom & utils"
+    "rofi2k|setup.sh|Universal application launcher & themes"
+    "qute2k|setup.sh|Keyboard-navigable browser configuration"
+    "tdo|setup.sh|Note-taking and todo CLI management"
+    "mkrepo|setup.sh|CLI GitHub repository generator"
+    "repowatch|setup.sh|Interactive multi-repo monitor"
+    "BWnB|setup.sh|Black, White & Blue themes (Kvantum, GTK)"
+    "refind2k|setup.sh|rEFInd UEFI bootloader theme"
 )
 
 # Parse Module Registry into indexed arrays
 TOTAL_MODULES=${#MODULE_DEFS[@]}
 MOD_REPOS=()
 MOD_SCRIPTS=()
-MOD_PROFILES=()
 MOD_DESCS=()
 
 for ((i = 0; i < TOTAL_MODULES; i++)); do
-    IFS='|' read -r mrepo mscript mprof mdesc <<<"${MODULE_DEFS[i]}"
+    IFS='|' read -r mrepo mscript mdesc <<<"${MODULE_DEFS[i]}"
     MOD_REPOS+=("$mrepo")
     MOD_SCRIPTS+=("$mscript")
-    MOD_PROFILES+=("$mprof")
     MOD_DESCS+=("$mdesc")
 done
 
 # ------------------------------------------------------------------------------
 # Profile Registry
-# Format: NAME | DESCRIPTION
+# Format: NAME | DESCRIPTION | MODULES
 # ------------------------------------------------------------------------------
 PROFILE_DEFS=(
-    "minimal|Core shell, Neovim, dotfiles & CLI tools"
-    "sway|Recommended: Sway, Waybar, apps & themes"
-    "i3|i3 window manager, Picom, apps & themes"
-    "full|Everything part of other profiles"
+    "minimal|Core shell, Neovim, dotfiles & CLI tools|dots2k nvim2k tdo mkrepo repowatch"
+    "sway|Recommended: Sway, Waybar, apps & themes|dots2k nvim2k sway2k rofi2k qute2k tdo mkrepo repowatch BWnB"
+    "i3|i3 window manager, Picom, apps & themes|dots2k nvim2k i32k rofi2k qute2k tdo mkrepo repowatch BWnB"
+    "full|Everything part of other profiles|dots2k nvim2k sway2k i32k rofi2k qute2k tdo mkrepo repowatch BWnB"
 )
 
 TOTAL_PROFILES=${#PROFILE_DEFS[@]}
 PROF_NAMES=()
 PROF_DESCS=()
+PROF_MODULES=()
 
 for ((i = 0; i < TOTAL_PROFILES; i++)); do
-    IFS='|' read -r pname pdesc <<<"${PROFILE_DEFS[i]}"
+    IFS='|' read -r pname pdesc pmods <<<"${PROFILE_DEFS[i]}"
     PROF_NAMES+=("$pname")
     PROF_DESCS+=("$pdesc")
+    PROF_MODULES+=("$pmods")
 done
 
 # ------------------------------------------------------------------------------
@@ -209,9 +209,17 @@ run_checkbox_ui() {
     local cursor=0
     local i
 
-    # Default: select all minimal + sway modules
+    # Default: select all modules from sway profile
+    local default_modules=()
+    for ((i = 0; i < TOTAL_PROFILES; i++)); do
+        if [[ "${PROF_NAMES[i]}" == "sway" ]]; then
+            read -r -a default_modules <<<"${PROF_MODULES[i]}"
+            break
+        fi
+    done
+
     for ((i = 0; i < TOTAL_MODULES; i++)); do
-        if [[ " ${MOD_PROFILES[i]} " =~ " sway " ]]; then
+        if [[ " ${default_modules[*]} " =~ " ${MOD_REPOS[i]} " ]]; then
             checked+=(1)
         else
             checked+=(0)
@@ -370,16 +378,15 @@ show_profile_menu() {
 select_profile() {
     local profile="$1"
     SELECTED_MODULES=()
-    for ((i = 0; i < TOTAL_MODULES; i++)); do
-        if [[ " ${MOD_PROFILES[i]} " =~ " ${profile} " ]]; then
-            SELECTED_MODULES+=("${MOD_REPOS[i]}")
+    for ((i = 0; i < TOTAL_PROFILES; i++)); do
+        if [[ "${PROF_NAMES[i]}" == "$profile" ]]; then
+            read -r -a SELECTED_MODULES <<<"${PROF_MODULES[i]}"
+            return 0
         fi
     done
 
-    if [[ ${#SELECTED_MODULES[@]} -eq 0 ]]; then
-        log_err "Unknown profile: '$profile'. Available: ${PROF_NAMES[*]}"
-        exit 1
-    fi
+    log_err "Unknown profile: '$profile'. Available: ${PROF_NAMES[*]}"
+    exit 1
 }
 
 # ------------------------------------------------------------------------------
@@ -551,10 +558,8 @@ list_available() {
     echo ""
     echo -e "${C_BOLD}Available Modules (${TOTAL_MODULES}):${C_RESET}"
     for ((i = 0; i < TOTAL_MODULES; i++)); do
-        local prof_display="${MOD_PROFILES[i]}"
-        [[ -z "$prof_display" || "$prof_display" == "none" ]] && prof_display="custom"
-        printf "  ${C_CYAN}%-12s${C_RESET} %-48s ${C_DIM}[%s]${C_RESET}\n" \
-            "${MOD_REPOS[i]}" "${MOD_DESCS[i]}" "$prof_display"
+        printf "  ${C_CYAN}%-12s${C_RESET} %s\n" \
+            "${MOD_REPOS[i]}" "- ${MOD_DESCS[i]}"
     done
 }
 
