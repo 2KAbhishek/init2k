@@ -137,6 +137,7 @@ init2k --all --dry-run
 - [mkrepo](https://github.com/2kabhishek/mkrepo)
 - [repowatch](https://github.com/2kabhishek/repowatch)
 - [dexe](https://github.com/2kabhishek/dexe)
+- [ghpm](https://github.com/2kabhishek/ghpm)
 - [BWnB](https://github.com/2kabhishek/BWnB)
 - [refind2k](https://github.com/2kabhishek/refind2k)
 

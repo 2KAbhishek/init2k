@@ -62,6 +62,7 @@ MODULE_DEFS=(
     "mkrepo|CLI GitHub repository generator"
     "repowatch|Interactive multi-repo monitor"
     "dexe|Executable, function, and alias launcher"
+    "ghpm|GitHub project and repository batch manager"
     "BWnB|Black, White & Blue themes (Kvantum, GTK)"
     "refind2k|rEFInd UEFI bootloader theme"
 )
@@ -85,10 +86,10 @@ done
 # Format: NAME | DESCRIPTION | MODULES
 # ------------------------------------------------------------------------------
 PROFILE_DEFS=(
-    "minimal|Core shell, Neovim, dotfiles & CLI tools|dots2k nvim2k tdo mkrepo repowatch dexe"
-    "sway|Recommended: Sway, Waybar, apps & themes|dots2k nvim2k sway2k rofi2k qute2k tdo mkrepo repowatch dexe BWnB"
-    "i3|i3 window manager, Picom, apps & themes|dots2k nvim2k i32k rofi2k qute2k tdo mkrepo repowatch dexe BWnB"
-    "full|Everything part of other profiles|dots2k nvim2k sway2k i32k rofi2k qute2k tdo mkrepo repowatch dexe BWnB"
+    "minimal|Core shell, Neovim, dotfiles & CLI tools|dots2k nvim2k tdo mkrepo repowatch dexe ghpm"
+    "sway|Recommended: Sway, Waybar, apps & themes|dots2k nvim2k sway2k rofi2k qute2k tdo mkrepo repowatch dexe ghpm BWnB"
+    "i3|i3 window manager, Picom, apps & themes|dots2k nvim2k i32k rofi2k qute2k tdo mkrepo repowatch dexe ghpm BWnB"
+    "full|Everything part of other profiles|dots2k nvim2k sway2k i32k rofi2k qute2k tdo mkrepo repowatch dexe ghpm BWnB"
 )
 
 TOTAL_PROFILES=${#PROFILE_DEFS[@]}
