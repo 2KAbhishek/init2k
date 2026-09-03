@@ -48,33 +48,31 @@ C_REV=$'\033[7m'
 
 # ------------------------------------------------------------------------------
 # Module Registry
-# Format: ID | REPO_NAME | SCRIPT | PROFILES | DESCRIPTION
+# Format: REPO | SCRIPT | PROFILES | DESCRIPTION
 # ------------------------------------------------------------------------------
 # To add a new repo/module, simply add an entry to this array!
 MODULE_DEFS=(
-    "dots2k|dots2k|setup.sh|minimal sway i3 full|Core shell, terminal, tmux, base packages & dotfiles"
-    "nvim2k|nvim2k|setup.sh|minimal sway i3 full|Personalized Neovim IDE configuration & LSPs"
-    "sway2k|sway2k|setup.sh|sway full|Sway Wayland desktop environment, waybar & utils"
-    "i32k|i32k|setup.sh|i3 full|i3 X11 window manager, picom & utils"
-    "rofi2k|rofi2k|setup.sh|sway i3 full|Universal application launcher & themes"
-    "qute2k|qute2k|setup.sh|sway i3 full|Keyboard-navigable browser configuration"
-    "tdo|tdo|setup.sh|minimal sway i3 full|Note-taking and todo CLI management"
-    "mkrepo|mkrepo|setup.sh|minimal sway i3 full|CLI GitHub repository generator"
-    "bwnb|BWnB|setup.sh|sway i3 full|Black, White & Blue themes (Kvantum, GTK)"
-    "refind2k|refind2k|setup.sh|full|rEFInd UEFI bootloader theme"
+    "dots2k|setup.sh -a|minimal sway i3 full|Core shell, terminal, tmux, base packages & dotfiles"
+    "nvim2k|setup.sh|minimal sway i3 full|Personalized Neovim IDE configuration & LSPs"
+    "sway2k|setup.sh|sway full|Sway Wayland desktop environment, waybar & utils"
+    "i32k|setup.sh|i3 full|i3 X11 window manager, picom & utils"
+    "rofi2k|setup.sh|sway i3 full|Universal application launcher & themes"
+    "qute2k|setup.sh|sway i3 full|Keyboard-navigable browser configuration"
+    "tdo|setup.sh|minimal sway i3 full|Note-taking and todo CLI management"
+    "mkrepo|setup.sh|minimal sway i3 full|CLI GitHub repository generator"
+    "BWnB|setup.sh|sway i3 full|Black, White & Blue themes (Kvantum, GTK)"
+    "refind2k|setup.sh|full|rEFInd UEFI bootloader theme"
 )
 
 # Parse Module Registry into indexed arrays
 TOTAL_MODULES=${#MODULE_DEFS[@]}
-MOD_IDS=()
 MOD_REPOS=()
 MOD_SCRIPTS=()
 MOD_PROFILES=()
 MOD_DESCS=()
 
 for ((i = 0; i < TOTAL_MODULES; i++)); do
-    IFS='|' read -r mid mrepo mscript mprof mdesc <<<"${MODULE_DEFS[i]}"
-    MOD_IDS+=("$mid")
+    IFS='|' read -r mrepo mscript mprof mdesc <<<"${MODULE_DEFS[i]}"
     MOD_REPOS+=("$mrepo")
     MOD_SCRIPTS+=("$mscript")
     MOD_PROFILES+=("$mprof")
@@ -232,7 +230,7 @@ run_checkbox_ui() {
             fi
 
             printf "%s[%s] %s%-10s%s %s\n" \
-                "$pointer" "$mark" "$line_style" "${MOD_IDS[i]}" "${C_RESET}${C_DIM}" "- ${MOD_DESCS[i]}${C_RESET}"
+                "$pointer" "$mark" "$line_style" "${MOD_REPOS[i]}" "${C_RESET}${C_DIM}" "- ${MOD_DESCS[i]}${C_RESET}"
         done
         echo ""
         echo -e "${C_DIM}Controls: [↑/k] Up  [↓/j] Down  [Space] Toggle  [a] Toggle All  [Enter] Confirm  [q] Cancel${C_RESET}"
@@ -309,7 +307,7 @@ run_checkbox_ui() {
     SELECTED_MODULES=()
     for ((i = 0; i < TOTAL_MODULES; i++)); do
         if [[ ${checked[i]} -eq 1 ]]; then
-            SELECTED_MODULES+=("${MOD_IDS[i]}")
+            SELECTED_MODULES+=("${MOD_REPOS[i]}")
         fi
     done
 }
@@ -355,7 +353,7 @@ select_profile() {
     SELECTED_MODULES=()
     for ((i = 0; i < TOTAL_MODULES; i++)); do
         if [[ " ${MOD_PROFILES[i]} " =~ " ${profile} " ]]; then
-            SELECTED_MODULES+=("${MOD_IDS[i]}")
+            SELECTED_MODULES+=("${MOD_REPOS[i]}")
         fi
     done
 
@@ -398,53 +396,45 @@ sync_repo() {
 }
 
 run_module_setup() {
-    local mid="$1"
+    local repo="$1"
     local idx=-1
 
     for ((i = 0; i < TOTAL_MODULES; i++)); do
-        if [[ "${MOD_IDS[i]}" == "$mid" ]]; then
+        if [[ "${MOD_REPOS[i],,}" == "${repo,,}" ]]; then
             idx=$i
             break
         fi
     done
 
     if [[ $idx -eq -1 ]]; then
-        log_err "Unknown module: '$mid'"
+        log_err "Unknown module: '$repo'"
         return 1
     fi
 
     local repo="${MOD_REPOS[idx]}"
-    local script="${MOD_SCRIPTS[idx]}"
+    local script_cmd="${MOD_SCRIPTS[idx]}"
+    local script_file="${script_cmd%% *}"
     local dest="$WORKSPACE_DIR/$repo"
 
-    log_step "Running setup for $mid ($repo)..."
+    log_step "Running setup for $repo..."
 
     sync_repo "$repo"
 
     if [[ "$DRY_RUN" == true ]]; then
-        if [[ -n "$script" && (-f "$dest/$script" || ! -d "$dest") ]]; then
-            echo "[DRY-RUN] cd $dest && ./$script"
+        if [[ -n "$script_file" && (-f "$dest/$script_file" || ! -d "$dest") ]]; then
+            echo "[DRY-RUN] cd $dest && ./$script_cmd"
         else
-            echo "[DRY-RUN] $mid repository synchronized."
+            echo "[DRY-RUN] $repo repository synchronized."
         fi
         return 0
     fi
 
-    if [[ -n "$script" && -f "$dest/$script" ]]; then
-        chmod +x "$dest/$script" 2>/dev/null || true
-        # Special flag for dots2k non-interactive all install
-        if [[ "$mid" == "dots2k" ]]; then
-            (cd "$dest" && ./setup.sh -a)
-        elif [[ "$mid" == "refind2k" ]]; then
-            (cd "$dest" && ./setup.sh)
-        elif [[ -x "$dest/$script" ]]; then
-            (cd "$dest" && ./"$script")
-        else
-            (cd "$dest" && bash "$script")
-        fi
-        log_success "$mid setup completed!"
+    if [[ -n "$script_file" && -f "$dest/$script_file" ]]; then
+        chmod +x "$dest/$script_file" 2>/dev/null || true
+        (cd "$dest" && ./$script_cmd)
+        log_success "$repo setup completed!"
     else
-        log_success "$mid repository synchronized!"
+        log_success "$repo repository synchronized!"
     fi
 }
 
@@ -537,14 +527,14 @@ EOF
 list_available() {
     echo -e "${C_BOLD}Available Profiles:${C_RESET}"
     echo -e "  ${C_CYAN}minimal${C_RESET} : dots2k, nvim2k, tdo, mkrepo"
-    echo -e "  ${C_CYAN}sway${C_RESET}    : dots2k, nvim2k, sway2k, rofi2k, qute2k, tdo, mkrepo, bwnb"
-    echo -e "  ${C_CYAN}i3${C_RESET}      : dots2k, nvim2k, i32k, rofi2k, qute2k, tdo, mkrepo, bwnb"
+    echo -e "  ${C_CYAN}sway${C_RESET}    : dots2k, nvim2k, sway2k, rofi2k, qute2k, tdo, mkrepo, BWnB"
+    echo -e "  ${C_CYAN}i3${C_RESET}      : dots2k, nvim2k, i32k, rofi2k, qute2k, tdo, mkrepo, BWnB"
     echo -e "  ${C_CYAN}full${C_RESET}    : all registered modules"
     echo ""
     echo -e "${C_BOLD}Available Modules (${TOTAL_MODULES}):${C_RESET}"
     for ((i = 0; i < TOTAL_MODULES; i++)); do
         printf "  ${C_CYAN}%-10s${C_RESET} %-45s ${C_DIM}[%s]${C_RESET}\n" \
-            "${MOD_IDS[i]}" "${MOD_DESCS[i]}" "${MOD_PROFILES[i]}"
+            "${MOD_REPOS[i]}" "${MOD_DESCS[i]}" "${MOD_PROFILES[i]}"
     done
 }
 
@@ -566,8 +556,8 @@ main() {
                 [[ -z "$raw_m" ]] && continue
                 local found=0
                 for ((i = 0; i < TOTAL_MODULES; i++)); do
-                    if [[ "${MOD_IDS[i]}" == "$raw_m" ]]; then
-                        SELECTED_MODULES+=("$raw_m")
+                    if [[ "${MOD_REPOS[i],,}" == "${raw_m,,}" ]]; then
+                        SELECTED_MODULES+=("${MOD_REPOS[i]}")
                         found=1
                         break
                     fi
