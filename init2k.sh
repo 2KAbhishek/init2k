@@ -60,8 +60,9 @@ MODULE_DEFS=(
     "qute2k|setup.sh|sway i3 full|Keyboard-navigable browser configuration"
     "tdo|setup.sh|minimal sway i3 full|Note-taking and todo CLI management"
     "mkrepo|setup.sh|minimal sway i3 full|CLI GitHub repository generator"
+    "repowatch|setup.sh|minimal sway i3 full|Interactive multi-repo monitor"
     "BWnB|setup.sh|sway i3 full|Black, White & Blue themes (Kvantum, GTK)"
-    "refind2k|setup.sh|full|rEFInd UEFI bootloader theme"
+    "refind2k|setup.sh|none|rEFInd UEFI bootloader theme"
 )
 
 # Parse Module Registry into indexed arrays
@@ -318,11 +319,11 @@ run_checkbox_ui() {
 
 show_profile_menu() {
     echo -e "${C_BOLD}Choose a setup profile or custom selection:${C_RESET}\n"
-    echo -e "  ${C_CYAN}(1)${C_RESET} ${C_BOLD}💻 Minimal / CLI${C_RESET}          ${C_DIM}(dots2k, nvim2k, tdo, mkrepo)${C_RESET}"
-    echo -e "  ${C_CYAN}(2)${C_RESET} ${C_BOLD}🌊 Sway Wayland Desktop${C_RESET}   ${C_DIM}(Recommended: Sway, waybar, nvim, apps)${C_RESET}"
-    echo -e "  ${C_CYAN}(3)${C_RESET} ${C_BOLD}🪟 i3 X11 Desktop${C_RESET}         ${C_DIM}(i3-wm, picom, nvim, apps)${C_RESET}"
-    echo -e "  ${C_CYAN}(4)${C_RESET} ${C_BOLD}🚀 Full Suite${C_RESET}             ${C_DIM}(All 2KAbhishek repositories)${C_RESET}"
-    echo -e "  ${C_CYAN}(5)${C_RESET} ${C_BOLD}🔘 Custom Selection${C_RESET}       ${C_DIM}(Interactive checkbox picker)${C_RESET}"
+    echo -e "  ${C_CYAN}(1)${C_RESET} ${C_BOLD}💻 Minimal / CLI${C_RESET}          ${C_DIM}(Core shell, Neovim, dotfiles & CLI tools)${C_RESET}"
+    echo -e "  ${C_CYAN}(2)${C_RESET} ${C_BOLD}🌊 Sway Wayland Desktop${C_RESET}   ${C_DIM}(Recommended: Sway, Waybar, apps & themes)${C_RESET}"
+    echo -e "  ${C_CYAN}(3)${C_RESET} ${C_BOLD}🪟 i3 X11 Desktop${C_RESET}         ${C_DIM}(i3 window manager, Picom, apps & themes)${C_RESET}"
+    echo -e "  ${C_CYAN}(4)${C_RESET} ${C_BOLD}🚀 Full Suite${C_RESET}             ${C_DIM}(Everything part of other profiles)${C_RESET}"
+    echo -e "  ${C_CYAN}(5)${C_RESET} ${C_BOLD}🔘 Custom Selection${C_RESET}       ${C_DIM}(Interactive picker)${C_RESET}"
     echo -e "  ${C_RED}(q)${C_RESET} ${C_DIM}Exit${C_RESET}\n"
 
     local choice=""
@@ -526,15 +527,17 @@ EOF
 
 list_available() {
     echo -e "${C_BOLD}Available Profiles:${C_RESET}"
-    echo -e "  ${C_CYAN}minimal${C_RESET} : dots2k, nvim2k, tdo, mkrepo"
-    echo -e "  ${C_CYAN}sway${C_RESET}    : dots2k, nvim2k, sway2k, rofi2k, qute2k, tdo, mkrepo, BWnB"
-    echo -e "  ${C_CYAN}i3${C_RESET}      : dots2k, nvim2k, i32k, rofi2k, qute2k, tdo, mkrepo, BWnB"
-    echo -e "  ${C_CYAN}full${C_RESET}    : all registered modules"
+    echo -e "  ${C_CYAN}minimal${C_RESET} : Core shell, Neovim & CLI productivity tools"
+    echo -e "  ${C_CYAN}sway${C_RESET}    : Wayland desktop environment with Sway, Waybar & themes"
+    echo -e "  ${C_CYAN}i3${C_RESET}      : X11 desktop environment with i3, Picom & themes"
+    echo -e "  ${C_CYAN}full${C_RESET}    : Complete desktop & CLI environment"
     echo ""
     echo -e "${C_BOLD}Available Modules (${TOTAL_MODULES}):${C_RESET}"
     for ((i = 0; i < TOTAL_MODULES; i++)); do
-        printf "  ${C_CYAN}%-10s${C_RESET} %-45s ${C_DIM}[%s]${C_RESET}\n" \
-            "${MOD_REPOS[i]}" "${MOD_DESCS[i]}" "${MOD_PROFILES[i]}"
+        local prof_display="${MOD_PROFILES[i]}"
+        [[ -z "$prof_display" || "$prof_display" == "none" ]] && prof_display="custom"
+        printf "  ${C_CYAN}%-12s${C_RESET} %-48s ${C_DIM}[%s]${C_RESET}\n" \
+            "${MOD_REPOS[i]}" "${MOD_DESCS[i]}" "$prof_display"
     done
 }
 
